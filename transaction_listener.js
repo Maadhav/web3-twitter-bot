@@ -32,7 +32,28 @@ const erc20TransferEvent = [
     type: "event",
   },
 ];
-
+const dexData = [
+  {
+    name: "Uniswap",
+    address: "0x7a250d5630b4cf539739df2c5dacb4c659f2488d",
+  },
+  {
+    name: "Uniswap",
+    address: "0xf164fC0Ec4E93095b804a4795bBe1e041497b92a",
+  },
+  {
+    name: "Sushiswap",
+    address: "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F",
+  },
+  {
+    name: "Balancer",
+    address: "0x6317C5e82A06E1d8bf200d21F4510Ac2c038AC81",
+  },
+  {
+    name: "Balancer",
+    address: "0x3e66b66fd1d0b02fda6c811da9e0547970db2f21",
+  },
+];
 abiDecoder.addABI(erc20TransferEvent);
 module.exports = (web3) => {
   const uniswap = "0x7a250d5630b4cf539739df2c5dacb4c659f2488d";
@@ -50,7 +71,9 @@ module.exports = (web3) => {
               transaction &&
               transaction.from &&
               transaction.to &&
-              transaction.to.toLowerCase() == uniswap
+              dexData
+                .map((dex) => dex.address.toLowerCase())
+                .includes(transaction.to.toLowerCase())
             ) {
               let rec = await web3.eth.getTransactionReceipt(tx);
               const decodedLogs = abiDecoder.decodeLogs(rec.logs);
@@ -77,6 +100,9 @@ module.exports = (web3) => {
                 BigNumber(events[tokens.length - 1][2].value) /
                 BigNumber("1e" + _1inchData.toToken.decimals);
               let finalMessage;
+              let dexName = dexData.find(
+                (dex) => dex.address.toLowerCase() == transaction.to.toLowerCase()
+              ).name;
               const amountDifference =
                 (BigNumber(_1inchData.toTokenAmount) -
                   BigNumber(events[tokens.length - 1][2].value)) /
@@ -84,9 +110,11 @@ module.exports = (web3) => {
               if (amountDifference <= 0) {
                 console.log("Block Number:      ".bgCyan.black + block.number);
                 console.log("Transaction ID:    ".bgYellow.black + tx);
-                console.log("Amount Difference: ".bgRed.black + amountDifference
+                console.log("DEX Name:          " + dexName);
+                console.log(
+                  "Amount Difference: ".bgRed.black + amountDifference
                 );
-                console.log()
+                console.log();
                 continue;
               }
               TwitterPost(
@@ -98,7 +126,7 @@ module.exports = (web3) => {
                   BigNumber("1e" + tokens[tokens.length - 1].tokenDecimal)
                 } ${
                   tokens[tokens.length - 1].tokenSymbol
-                } on Uniswap. That trade on #1INCH would be ${amountDifference} ${
+                } on ${dexName}. That trade on #1INCH would be ${amountDifference} ${
                   _1inchData.toToken.symbol
                 } cheaper.`,
                 (tweetUrl) => {
@@ -120,6 +148,7 @@ module.exports = (web3) => {
                     } ${_1inchData.toToken.symbol}`,
                     loss: `${amountDifference} ${_1inchData.toToken.symbol}`,
                     tweetUrl: tweetUrl,
+                    dexName: dexName,
                   };
                   supabaseClient(finalMessage);
                   console.log(
@@ -128,11 +157,12 @@ module.exports = (web3) => {
                   console.log(
                     "Tranaction ID:     ".bgYellow.black + finalMessage.tx_id
                   );
+                  console.log("DEX Name:          " + dexName);
                   console.log(
                     "Amount Difference: ".bgGreen.black + finalMessage.loss
                   );
                   console.log("Tweet URL:         " + finalMessage.tweetUrl);
-                  console.log()
+                  console.log();
                 }
               );
               // break;
