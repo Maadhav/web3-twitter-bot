@@ -12,6 +12,7 @@ module.exports = function TwitterPost(message,callback ) {
     { status: message },
     function (error, tweet, response) {
       if (error) throw error
+      else
       callback(`https://twitter.com/1inchSwapBot/status/${tweet.id_str}`)
     }
   );

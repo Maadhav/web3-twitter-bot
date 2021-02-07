@@ -56,7 +56,6 @@ const dexData = [
 ];
 abiDecoder.addABI(erc20TransferEvent);
 module.exports = (web3) => {
-  const uniswap = "0x7a250d5630b4cf539739df2c5dacb4c659f2488d";
   return {
     async checkLastBlock() {
       let block = await web3.eth.getBlock("latest");
@@ -103,7 +102,7 @@ module.exports = (web3) => {
               let dexName = dexData.find(
                 (dex) => dex.address.toLowerCase() == transaction.to.toLowerCase()
               ).name;
-              const amountDifference =
+              let amountDifference =
                 (BigNumber(_1inchData.toTokenAmount) -
                   BigNumber(events[tokens.length - 1][2].value)) /
                 BigNumber(`1e${_1inchData.toToken.decimals}`);
@@ -117,6 +116,10 @@ module.exports = (web3) => {
                 console.log();
                 continue;
               }
+              let differenceInUSD = await oneInchApi(
+                tokenAddresses[tokens.length - 1].toLowerCase(),"0xdac17f958d2ee523a2206206994597c13d831ec7", BigNumber(_1inchData.toTokenAmount)-BigNumber(events[tokens.length - 1][2].value)
+              )
+              amountDifference = "$"+(BigNumber( differenceInUSD.toTokenAmount) /BigNumber(`1e6`))
               TwitterPost(
                 `https://etherscan.io/tx/${tx} just swapped ${
                   BigNumber(events[0][2].value) /
@@ -126,9 +129,7 @@ module.exports = (web3) => {
                   BigNumber("1e" + tokens[tokens.length - 1].tokenDecimal)
                 } ${
                   tokens[tokens.length - 1].tokenSymbol
-                } on ${dexName}. That trade on #1INCH would be ${amountDifference} ${
-                  _1inchData.toToken.symbol
-                } cheaper.`,
+                } on ${dexName}. That trade on #1INCH would be ${amountDifference} better.`,
                 (tweetUrl) => {
                   finalMessage = {
                     tx_id: tx,
@@ -146,7 +147,7 @@ module.exports = (web3) => {
                       BigNumber(_1inchData.toTokenAmount) /
                       BigNumber(`1e${_1inchData.toToken.decimals}`)
                     } ${_1inchData.toToken.symbol}`,
-                    loss: `${amountDifference} ${_1inchData.toToken.symbol}`,
+                    loss: `${amountDifference}`,
                     tweetUrl: tweetUrl,
                     dexName: dexName,
                   };
@@ -165,7 +166,6 @@ module.exports = (web3) => {
                   console.log();
                 }
               );
-              // break;
             }
           }
         }
