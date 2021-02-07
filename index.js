@@ -11,6 +11,6 @@ const watchTransactions = BuildTransactionChecker2({ web3, web3http })
 
 // watchTransactions()
 console.log("[+]Searching for latest UNISWAP transactions...")
-// setInterval(() => {
+setInterval(() => {
     checkLastBlock()
-// }, 2000)    
+}, 2000)    

@@ -9,6 +9,5 @@ const supabase = supabaseClient.createClient(
 
 module.exports = async function addSwapElement(props) {
   const { data, error } = await supabase.from("latest_swaps").insert([props]);
-  data !=null && console.log('Added to Supabase')
   error!=null && console.log(error)
 };
