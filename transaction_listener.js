@@ -5,6 +5,7 @@ const abiDecoder = require("abi-decoder");
 const supabaseClient = require("./supabase_client");
 const oneInchApi = require("./1inch_api");
 const colors = require("colors");
+const convertToUSD = require("./token_to_usd");
 var blocks_read = [];
 var txs_read = [];
 
@@ -100,7 +101,8 @@ module.exports = (web3) => {
                 BigNumber("1e" + _1inchData.toToken.decimals);
               let finalMessage;
               let dexName = dexData.find(
-                (dex) => dex.address.toLowerCase() == transaction.to.toLowerCase()
+                (dex) =>
+                  dex.address.toLowerCase() == transaction.to.toLowerCase()
               ).name;
               let amountDifference =
                 (BigNumber(_1inchData.toTokenAmount) -
@@ -116,10 +118,13 @@ module.exports = (web3) => {
                 console.log();
                 continue;
               }
-              let differenceInUSD = await oneInchApi(
-                tokenAddresses[tokens.length - 1].toLowerCase(),"0xdac17f958d2ee523a2206206994597c13d831ec7", BigNumber(_1inchData.toTokenAmount)-BigNumber(events[tokens.length - 1][2].value)
-              )
-              amountDifference = "$"+(BigNumber( differenceInUSD.toTokenAmount) /BigNumber(`1e6`))
+              let differenceInUSD =
+                BigNumber(await convertToUSD(
+                  tokenAddresses[tokens.length - 1].toLowerCase()
+                )) * amountDifference;
+              BigNumber(`1e${_1inchData.toToken.decimals}`);
+              amountDifference =
+                "$" + BigNumber(differenceInUSD);
               TwitterPost(
                 `https://etherscan.io/tx/${tx} just swapped ${
                   BigNumber(events[0][2].value) /
