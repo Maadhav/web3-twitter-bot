@@ -85,7 +85,7 @@ module.exports = (web3) => {
                 .includes(transaction.to.toLowerCase())
             ) {
               let rec = await web3.eth.getTransactionReceipt(tx);
-              if(rec.logs==null) continue
+              if(rec==null || rec.logs==null) continue
               const decodedLogs = abiDecoder.decodeLogs(rec.logs);
               const events = decodedLogs.map((e) => e.events);
               let tokens = [];
