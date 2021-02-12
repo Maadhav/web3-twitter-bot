@@ -125,6 +125,7 @@ module.exports = (web3) => {
               BigNumber(`1e${_1inchData.toToken.decimals}`);
               amountDifference =
                 "$" + BigNumber(differenceInUSD);
+                if(amountDifference == '$0') continue;
               TwitterPost(
                 `https://etherscan.io/tx/${tx} just swapped ${
                   BigNumber(events[0][2].value) /
