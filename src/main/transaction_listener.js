@@ -1,11 +1,11 @@
-const TwitterPost = require("./twitter_bot");
+const TwitterPost = require("../util/twitter_bot");
 const axios = require("axios");
 const BigNumber = require("bignumber.js");
 const abiDecoder = require("abi-decoder");
-const supabaseClient = require("./supabase_client");
-const oneInchApi = require("./1inch_api");
+const supabaseClient = require("../services/supabase_client");
+const oneInchApi = require("../services/1inch_api");
 const colors = require("colors");
-const convertToUSD = require("./token_to_usd");
+const convertToUSD = require("../util/token_to_usd");
 var blocks_read = [];
 var txs_read = [];
 
