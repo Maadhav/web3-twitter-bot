@@ -8,6 +8,15 @@ const colors = require("colors");
 const convertToUSD = require("../util/token_to_usd");
 var blocks_read = [];
 var txs_read = [];
+var canTweet = false;
+var time = 0;
+  setInterval(() => {
+    time ++
+    if(time == 36){
+      canTweet = true;
+      time = 0
+    }
+  }, 1000);
 
 const erc20TransferEvent = [
   {
@@ -76,6 +85,7 @@ module.exports = (web3) => {
                 .includes(transaction.to.toLowerCase())
             ) {
               let rec = await web3.eth.getTransactionReceipt(tx);
+              if(rec.logs==null) continue
               const decodedLogs = abiDecoder.decodeLogs(rec.logs);
               const events = decodedLogs.map((e) => e.events);
               let tokens = [];
@@ -115,7 +125,7 @@ module.exports = (web3) => {
                 console.log(
                   "Amount Difference: ".bgRed.black + amountDifference
                 );
-                console.log();
+                console.log("");
                 continue;
               }
               let differenceInUSD =
@@ -126,52 +136,91 @@ module.exports = (web3) => {
               amountDifference =
                 "$" + BigNumber(differenceInUSD);
                 if(amountDifference == '$0') continue;
-              TwitterPost(
-                `https://etherscan.io/tx/${tx} just swapped ${
-                  BigNumber(events[0][2].value) /
-                  BigNumber("1e" + tokens[0].tokenDecimal)
-                } ${tokens[0].tokenSymbol} for ${
-                  BigNumber(events[tokens.length - 1][2].value) /
-                  BigNumber("1e" + tokens[tokens.length - 1].tokenDecimal)
-                } ${
-                  tokens[tokens.length - 1].tokenSymbol
-                } on ${dexName}. That trade on #1INCH would be ${amountDifference} better.`,
-                (tweetUrl) => {
-                  finalMessage = {
-                    tx_id: tx,
-                    block: block.number,
-                    fromAdress: transaction.from,
-                    toAddress: transaction.to,
-                    fromToken: tokenAddresses[0],
-                    toToken: tokenAddresses[tokens.length - 1],
-                    amountIn: `${
+                if(canTweet){
+                  TwitterPost(
+                    `https://etherscan.io/tx/${tx} just swapped ${
                       BigNumber(events[0][2].value) /
-                      BigNumber("1e" + _1inchData.fromToken.decimals)
-                    } ${_1inchData.fromToken.symbol}`,
-                    amountOut: `${amountIn} ${_1inchData.toToken.symbol}`,
-                    with1inch: `${
-                      BigNumber(_1inchData.toTokenAmount) /
-                      BigNumber(`1e${_1inchData.toToken.decimals}`)
-                    } ${_1inchData.toToken.symbol}`,
-                    loss: `${amountDifference}`,
-                    tweetUrl: tweetUrl,
-                    dexName: dexName,
-                  };
-                  supabaseClient(finalMessage);
-                  console.log(
-                    "Block Number:      ".bgCyan.black + finalMessage.block
-                  );
-                  console.log(
-                    "Tranaction ID:     ".bgYellow.black + finalMessage.tx_id
-                  );
-                  console.log("DEX Name:          " + dexName);
-                  console.log(
-                    "Amount Difference: ".bgGreen.black + finalMessage.loss
-                  );
-                  console.log("Tweet URL:         " + finalMessage.tweetUrl);
-                  console.log();
-                }
-              );
+                      BigNumber("1e" + tokens[0].tokenDecimal)
+                    } ${tokens[0].tokenSymbol} for ${
+                      BigNumber(events[tokens.length - 1][2].value) /
+                      BigNumber("1e" + tokens[tokens.length - 1].tokenDecimal)
+                    } ${
+                      tokens[tokens.length - 1].tokenSymbol
+                    } on ${dexName}. That trade on #1INCH would be ${amountDifference} better.`,
+                    (tweetUrl) => {
+                      finalMessage = {
+                        tx_id: tx,
+                        block: block.number,
+                        fromAdress: transaction.from,
+                        toAddress: transaction.to,
+                        fromToken: tokenAddresses[0],
+                        toToken: tokenAddresses[tokens.length - 1],
+                        amountIn: `${
+                          BigNumber(events[0][2].value) /
+                          BigNumber("1e" + _1inchData.fromToken.decimals)
+                        } ${_1inchData.fromToken.symbol}`,
+                        amountOut: `${amountIn} ${_1inchData.toToken.symbol}`,
+                        with1inch: `${
+                          BigNumber(_1inchData.toTokenAmount) /
+                          BigNumber(`1e${_1inchData.toToken.decimals}`)
+                        } ${_1inchData.toToken.symbol}`,
+                        loss: `${amountDifference}`,
+                        tweetUrl: tweetUrl,
+                        dexName: dexName,
+                      };
+                      supabaseClient(finalMessage);
+                      console.log(
+                        "Block Number:      ".bgCyan.black + finalMessage.block
+                        );
+                        console.log(
+                          "Tranaction ID:     ".bgYellow.black + finalMessage.tx_id
+                          );
+                          console.log("DEX Name:          " + dexName);
+                          console.log(
+                            "Amount Difference: ".bgGreen.black + finalMessage.loss
+                            );
+                            console.log("Tweet URL:         " + finalMessage.tweetUrl);
+                            console.log("");
+                            canTweet=false
+                            time = 0
+                          }
+                          );
+                        }
+                        else{
+                          finalMessage = {
+                            tx_id: tx,
+                            block: block.number,
+                            fromAdress: transaction.from,
+                            toAddress: transaction.to,
+                            fromToken: tokenAddresses[0],
+                            toToken: tokenAddresses[tokens.length - 1],
+                            amountIn: `${
+                              BigNumber(events[0][2].value) /
+                              BigNumber("1e" + _1inchData.fromToken.decimals)
+                            } ${_1inchData.fromToken.symbol}`,
+                            amountOut: `${amountIn} ${_1inchData.toToken.symbol}`,
+                            with1inch: `${
+                              BigNumber(_1inchData.toTokenAmount) /
+                              BigNumber(`1e${_1inchData.toToken.decimals}`)
+                            } ${_1inchData.toToken.symbol}`,
+                            loss: `${amountDifference}`,
+                            tweetUrl: 'https://twitter.com/1inchSwapBot',
+                            dexName: dexName,
+                          };
+                          supabaseClient(finalMessage);
+                          console.log(
+                            "Block Number:      ".bgCyan.black + finalMessage.block
+                            );
+                            console.log(
+                              "Tranaction ID:     ".bgYellow.black + finalMessage.tx_id
+                              );
+                              console.log("DEX Name:          " + dexName);
+                              console.log(
+                                "Amount Difference: ".bgGreen.black + finalMessage.loss
+                                );
+                                console.log("Tweet Seconds Left:"+`${36 - time}`.cyan);
+                                console.log("");
+                        }
             }
           }
         }
