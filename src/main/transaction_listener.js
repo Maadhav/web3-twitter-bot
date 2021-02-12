@@ -12,7 +12,7 @@ var canTweet = false;
 var time = 0;
   setInterval(() => {
     time ++
-    if(time == 36){
+    if(time == 40){
       canTweet = true;
       time = 0
     }
