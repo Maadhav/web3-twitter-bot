@@ -5,7 +5,7 @@ module.exports = async function convertToUSD(tokenAddresses) {
   let dataToReturn = null;
   let response 
   try {
-    await axios.get(
+    response = await axios.get(
       `https://api.ethplorer.io/getAddressInfo/${tokenAddresses}?apiKey=freekey`
       );
       if (response.data.tokenInfo.price)
@@ -16,7 +16,6 @@ module.exports = async function convertToUSD(tokenAddresses) {
     }
   if (dataToReturn == null) {
     try{
-
       const body = await axios.get(
         `https://etherscan.io/token/${tokenAddresses}`
         );
@@ -27,9 +26,9 @@ module.exports = async function convertToUSD(tokenAddresses) {
           .text()
           .split(" @ ")[0]
           .substring(2);
-          return dataToReturn;
         }catch(e){
           console.log(e)
         }
       }
+      return dataToReturn;
 };
