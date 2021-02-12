@@ -125,7 +125,7 @@ module.exports = (web3) => {
                 console.log(
                   "Amount Difference: ".bgRed.black + amountDifference
                 );
-                console.log("");
+                console.log("\n");
                 continue;
               }
               let differenceInUSD =
@@ -180,7 +180,7 @@ module.exports = (web3) => {
                             "Amount Difference: ".bgGreen.black + finalMessage.loss
                             );
                             console.log("Tweet URL:         " + finalMessage.tweetUrl);
-                            console.log("");
+                            console.log("\n");
                             canTweet=false
                             time = 0
                           }
@@ -218,7 +218,7 @@ module.exports = (web3) => {
                               console.log(
                                 "Amount Difference: ".bgGreen.black + finalMessage.loss
                                 );
-                                console.log("Tweet Seconds Left:"+`${36 - time}`.cyan);
+                                console.log("Tweet Seconds Left:"+`${40 - time}`.cyan);
                                 console.log("");
                         }
             }
