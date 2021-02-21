@@ -6,7 +6,6 @@ module.exports = async function getQuote(fromTokenAddress, toTokenAddress, amoun
           let response = await axios.get(uri);
           return response.data;
         } catch (error) {
-          console.log(error);
           return null;
         }
 }
