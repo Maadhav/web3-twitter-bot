@@ -25,7 +25,7 @@ module.exports = async function convertToUSD(tokenAddresses) {
           )
           .text()
           .split(" @ ")[0]
-          .substring(2);
+          .substring(2).replace(",", "");
         }catch(e){
           console.log(e)
         }
