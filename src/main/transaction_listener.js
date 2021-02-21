@@ -8,7 +8,7 @@ const colors = require("colors");
 const convertToUSD = require("../util/token_to_usd");
 var blocks_read = [];
 var txs_read = [];
-var canTweet = false;
+var canTweet = true;
 var time = 0;
   setInterval(() => {
     time ++
