@@ -1,5 +1,5 @@
 'use strict';
 
 module.exports = Web3 => ({
-    web3: new Web3(new Web3.providers.WebsocketProvider('wss://main-light.eth.linkpool.io/ws'))
-})  
+    web3: new Web3(new Web3.providers.HttpProvider('https://cloudflare-eth.com'))
+})
